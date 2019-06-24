@@ -9,7 +9,9 @@ package it.polito.tdp.extflightdelays;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.extflightdelays.model.Airport;
 import it.polito.tdp.extflightdelays.model.Model;
+import it.polito.tdp.extflightdelays.model.VoliDistanza;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -37,7 +39,7 @@ public class ExtFlightDelaysController {
     private Button btnAnalizza; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbBoxAeroportoPartenza"
-    private ComboBox<?> cmbBoxAeroportoPartenza; // Value injected by FXMLLoader
+    private ComboBox<Airport> cmbBoxAeroportoPartenza; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnAeroportiConnessi"
     private Button btnAeroportiConnessi; // Value injected by FXMLLoader
@@ -50,12 +52,41 @@ public class ExtFlightDelaysController {
 
     @FXML
     void doAnalizzaAeroporti(ActionEvent event) {
+    	
+    	txtResult.clear();
+    	cmbBoxAeroportoPartenza.getItems().clear();
+    	
+    	if(distanzaMinima.getText().equals("")) {
+    		txtResult.appendText("Devi inserire una distanza minima!!");
+    		return;
+    	}
+    	
+    	int limite = Integer.parseInt(distanzaMinima.getText());
+    	
+    	model = new Model();
+    	model.creaGrafo(limite);  	
+    	
+    	cmbBoxAeroportoPartenza.getItems().addAll(model.getGrafo().vertexSet());
+    	
 
     }
 
     @FXML
     void doCalcolaAeroportiConnessi(ActionEvent event) {
-
+    	
+    	txtResult.clear();
+    	
+    	if(cmbBoxAeroportoPartenza.getValue() == null) {
+    		txtResult.appendText("Devi selezionare un aereoporto di partenza!!");
+    		return;
+    	}
+    	
+    	Airport partenza = cmbBoxAeroportoPartenza.getValue();
+    	
+    	for(VoliDistanza vd : model.getConnessi(partenza)) {
+    		txtResult.appendText(vd.getIdArrivo() + "Distanza media= " + vd.getDistanzaAVG() + "\n");
+    	}
+    	
     }
 
     @FXML

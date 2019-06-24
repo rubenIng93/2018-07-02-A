@@ -7,10 +7,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import it.polito.tdp.extflightdelays.model.Airline;
 import it.polito.tdp.extflightdelays.model.Airport;
 import it.polito.tdp.extflightdelays.model.Flight;
+import it.polito.tdp.extflightdelays.model.VoliDistanza;
 
 public class ExtFlightDelaysDAO {
 
@@ -90,5 +92,38 @@ public class ExtFlightDelaysDAO {
 			System.out.println("Errore connessione al database");
 			throw new RuntimeException("Error Connection Database");
 		}
+	}
+	
+	public List<VoliDistanza> getVoliAndAVG(int limiteInferiore, Map<Integer, Airport> idMapAirport){
+		
+		String sql = "SELECT  f.ORIGIN_AIRPORT_ID, f.DESTINATION_AIRPORT_ID, AVG(f.DISTANCE) AS media " + 
+				"FROM flights f " + 
+				"GROUP BY f.ORIGIN_AIRPORT_ID, f.DESTINATION_AIRPORT_ID " + 
+				"HAVING AVG(f.DISTANCE) > ?";
+		
+		List<VoliDistanza> result = new ArrayList<>();
+		
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, limiteInferiore);
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				VoliDistanza vd = new VoliDistanza(idMapAirport.get(rs.getInt("ORIGIN_AIRPORT_ID"))  , 
+						idMapAirport.get(rs.getInt("DESTINATION_AIRPORT_ID")), 
+						rs.getDouble("media"));
+				result.add(vd);
+			}
+
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+		}
+		
 	}
 }
