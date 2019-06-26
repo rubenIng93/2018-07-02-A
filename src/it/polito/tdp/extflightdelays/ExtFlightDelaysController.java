@@ -91,6 +91,22 @@ public class ExtFlightDelaysController {
 
     @FXML
     void doCercaItinerario(ActionEvent event) {
+    	
+    	txtResult.clear();
+    	
+    	Airport partenza = cmbBoxAeroportoPartenza.getValue();
+    	
+    	int limite = Integer.parseInt(numeroVoliTxtInput.getText());
+    	
+    	model.prepareRicorsione(partenza, limite);
+    	
+    	txtResult.appendText(">>>VISITA OTTIMA<<<\n");
+    	
+    	for(Airport a : model.getOttima()) {
+    		txtResult.appendText(a + "\n");
+    	}
+    	
+    	txtResult.appendText("Distanza totale percorsa: " + model.getDistanzaOttima() + " Miglia");
 
     }
 
